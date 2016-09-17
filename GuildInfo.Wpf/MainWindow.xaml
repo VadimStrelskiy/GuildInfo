@@ -1,0 +1,164 @@
+﻿<Window x:Class="GuildInfo.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:GuildInfo.Wpf.ViewModels"
+        xmlns:controls="clr-namespace:GuildInfo.Wpf.Controls"
+        mc:Ignorable="d"
+        Title="GuildInfo" Height="600" Width="1140"
+        d:DataContext="{d:DesignInstance viewModels:GuildViewModel}">
+
+    <Window.CommandBindings>
+        <CommandBinding
+            x:Name="Fetch"
+            Command="viewModels:GuildViewModel.FetchCommand"
+            Executed="Fetch_Executed"
+            CanExecute="Fetch_CanExecute"/>
+        <CommandBinding
+            x:Name="Filter"
+            Command="viewModels:GuildViewModel.FilterCommand"
+            Executed="Filter_Executed"
+            CanExecute="Filter_CanExecute"/>
+    </Window.CommandBindings>
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Width" Value="120" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="HorizontalContentAlignment" Value="Right" />
+            <Setter Property="MinWidth" Value="100" />
+        </Style>
+        <Style TargetType="ListView">
+            <Setter Property="Margin" Value="5 0 5 5" />
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Margin" Value="5 0 5 5" />
+        </Style>
+
+        <DataTemplate x:Key="ListBoxItemTemplate" >
+
+            <WrapPanel>
+                <CheckBox Focusable="False" IsChecked="{Binding IsSelected}" VerticalAlignment="Center"  />
+                <Image Width ="18" Source="{Binding Element.Icon}" Margin="5 0 15 0"/>
+            </WrapPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Realm:" Grid.Column="0" Grid.Row="0"/>
+        <TextBox Text="{Binding Realm, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="0"/>
+        <Label Content="Guild:" Grid.Column="2" Grid.Row="0" />
+        <TextBox Text="{Binding Guild, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="0"/>
+
+        <Button Command="viewModels:GuildViewModel.FetchCommand" Content="Fetch"
+                Grid.Column="5" Grid.Row="0" Width="100" HorizontalAlignment="Right"/>
+
+        <Separator Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6"/>
+        
+        <Label Content="Min lvl:" Grid.Column="0" Grid.Row="2"/>
+        <TextBox Text="{Binding MinLevel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2"/>
+        <Label Content="Min ilvl:" Grid.Column="2" Grid.Row="2"/>
+        <TextBox Text="{Binding MinItemLevel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="2"/>
+
+        <Label Content="Ranks to exclude(separate with ','):" 
+               Grid.Column="4" Grid.Row="2" Margin="20 0 0 0"/>
+        <TextBox Text="{Binding RanksToExclude, UpdateSourceTrigger=PropertyChanged}" Grid.Column="5" Grid.Row="2" />
+
+        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="6" Margin="50 0 0 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <WrapPanel Grid.Column="0"  VerticalAlignment="Center" Margin="5 0 5 0">
+                <CheckBox Focusable="False" IsChecked="{Binding AllClassesSelected}" VerticalAlignment="Center"  />
+                <Label Content="All" MinWidth="0" />
+            </WrapPanel>
+            <ListBox Grid.Column="1" Margin="0 5 0 0"
+                 ItemTemplate="{DynamicResource ListBoxItemTemplate}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                 ItemsSource="{Binding Classes}" BorderThickness="0">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+
+            <Button Command="viewModels:GuildViewModel.FilterCommand"
+                    Content="Apply Filtration" HorizontalAlignment="Right"
+                    Width="100" Grid.Column="2"/>
+        </Grid>
+
+        <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6"/>
+        
+        <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6">
+            <Grid.Resources>
+                <Style TargetType="Label">
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                </Style>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="7*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="3*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30*" />
+                <ColumnDefinition Width="35*" />
+                <ColumnDefinition Width="35*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Mains" Grid.Column="0" Grid.Row="0"/>
+            <controls:CharacterControl DataContext="{Binding MainCharacters}"
+                                                Grid.Column="0" Grid.Row="1"/>
+
+            <Label Content="{Binding AltsOf}" Grid.Column="0" Grid.Row="2"/>
+            <controls:CharacterControl DataContext="{Binding AltCharacters}"
+                                                Grid.Column="0" Grid.Row="3"/>
+
+            <Label Content="All Alts" Grid.Column="1" Grid.Row="0"/>
+            <controls:CharacterControl DataContext="{Binding AllAltCharacters}"
+                                                Grid.Column="1" Grid.Row="1" Grid.RowSpan="3"/>
+
+            <Label Content="Top Alts" Grid.Column="2" Grid.Row="0"/>
+            <controls:CharacterControl DataContext="{Binding TopAltCharacters}"
+                                                Grid.Column="2" Grid.Row="1" Grid.RowSpan="3"/>
+        </Grid>
+    </Grid>
+</Window>
