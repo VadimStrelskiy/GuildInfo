@@ -15,6 +15,8 @@ namespace GuildInfo.Wpf.ViewModels
     public class GuildViewModel : ViewModelBase
     {
         private string _altsOf;
+        private double _progress;
+        private int _charactersLoaded;
         private bool? _allClassesSelected;
         private const string _altsOfNoone = "Alts of";
 
@@ -151,6 +153,16 @@ namespace GuildInfo.Wpf.ViewModels
             }
         }
 
+        public double Progress
+        {
+            get { return _progress; }
+            set
+            {
+                _progress = value;
+                OnPropertyChanged("Progress");
+            }
+        }
+
         public bool? AllClassesSelected
         {
             get { return _allClassesSelected; }
@@ -177,8 +189,15 @@ namespace GuildInfo.Wpf.ViewModels
 
         public async Task Fetch()
         {
-
+            _charactersLoaded = 0;
+            Progress = 0;
             var service = new GuildService(ConfigurationManager.AppSettings["ApiKey"]);
+            
+            service.CharacterLoaded += (o, e) =>
+            {
+                _charactersLoaded ++;
+                Progress = (double)_charactersLoaded/e.CharactersTotal;
+            };
             var task = Task<IEnumerable<AggergatedCharacter>>.Factory.StartNew(() => service.Fetch(Realm, Guild));
             await task;
 

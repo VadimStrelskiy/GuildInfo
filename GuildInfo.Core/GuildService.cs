@@ -13,6 +13,8 @@ namespace GuildInfo.Core
     {
         private readonly WowExplorer _explorer;
 
+        public event EventHandler<CharacterLoadedEventArgs> CharacterLoaded;
+
         public GuildService(string apiKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey)) throw new ArgumentNullException(nameof(apiKey));
@@ -23,8 +25,9 @@ namespace GuildInfo.Core
         {
             if (string.IsNullOrWhiteSpace(realmName)) throw new ArgumentNullException(nameof(realmName));
             if (string.IsNullOrWhiteSpace(guildName)) throw new ArgumentNullException(nameof(guildName));
-            
-            var guild = _explorer.GetGuild(realmName, guildName, GuildOptions.GetMembers);
+
+            var guild = GetGuildInternal(realmName, guildName);
+
             var characters = new List<GuildInfoCharacter>();
 
 #if DEBUG
@@ -36,6 +39,7 @@ namespace GuildInfo.Core
                 var character = GetCharacterInternal(member);
                 if (character == null) return;
                 characters.Add(new GuildInfoCharacter(character, member));
+                CharacterLoaded?.Invoke(this, new CharacterLoadedEventArgs(guild.Members.Count()));
             })).ToArray());
 
             var aggregatedCharacters =
@@ -50,11 +54,28 @@ namespace GuildInfo.Core
             return aggregatedCharacters;
         }
 
+        private Guild GetGuildInternal(string realmName, string guildName)
+        {
+            try
+            {
+                return _explorer.GetGuild(realmName, guildName, GuildOptions.GetMembers);
+            }
+            catch (WebException ex)
+            {
+                HttpStatusCode code = ((HttpWebResponse)ex.Response).StatusCode;
+                if (code == HttpStatusCode.GatewayTimeout)
+                {
+                    return GetGuildInternal(realmName, guildName);
+                }
+
+                throw;
+            }
+        }
+
         private Character GetCharacterInternal(GuildMember member)
         {
             try
             {
-                //throw new ArgumentNullException("TEST");
                 return _explorer.GetCharacter(member.Character.Realm, member.Character.Name,
                     CharacterOptions.GetItems | CharacterOptions.GetReputation | CharacterOptions.GetPets);
             }

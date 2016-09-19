@@ -43,6 +43,7 @@
     <Compile Include="GuildService.cs" />
     <Compile Include="IGuildService.cs" />
     <Compile Include="Models\AggergatedCharacter.cs" />
+    <Compile Include="Models\CharacterLoadedEventArgs.cs" />
     <Compile Include="Models\GuildInfoCharacter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

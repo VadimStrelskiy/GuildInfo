@@ -2,6 +2,7 @@
 using System.Net;
 using System.Windows;
 using System.Windows.Input;
+using GuildInfo.Wpf.Controls;
 using GuildInfo.Wpf.ViewModels;
 
 namespace GuildInfo.Wpf
@@ -20,6 +21,18 @@ namespace GuildInfo.Wpf
         {
             Mouse.OverrideCursor = Cursors.Wait;
             MainGrid.IsEnabled = false;
+            var progressBarViewModel = new ProgressBarViewModel();
+            ViewModel.PropertyChanged += (o, args) =>
+            {
+                if (args.PropertyName == "Progress")
+                {
+                    progressBarViewModel.Progress = ViewModel.Progress;
+                }
+            };
+            var progressBarWindow = new ProgressBarWindow(progressBarViewModel);
+            progressBarWindow.Owner = this;
+            progressBarWindow.Show();
+
             try
             {
                 await ViewModel.Fetch();
@@ -44,7 +57,8 @@ namespace GuildInfo.Wpf
             {
                 throw ex.InnerExceptions[0];
             }
-            
+
+            progressBarWindow.Close();
             Mouse.OverrideCursor = null;
             MainGrid.IsEnabled = true;
         }

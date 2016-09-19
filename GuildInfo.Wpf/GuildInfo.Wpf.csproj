@@ -60,6 +60,9 @@
     <Compile Include="Controls\CharactersControl.xaml.cs">
       <DependentUpon>CharactersControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ProgressBarWindow.xaml.cs">
+      <DependentUpon>ProgressBarWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Extentions\ObservableCollectionExtentions.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Selection\SelectionItem.cs" />
@@ -68,8 +71,13 @@
     <Compile Include="ViewModels\ClassViewModel.cs" />
     <Compile Include="ViewModels\GuildViewModel.cs" />
     <Compile Include="ViewModels\CharacterViewModel.cs" />
+    <Compile Include="ViewModels\ProgressBarViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Page Include="Controls\CharactersControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProgressBarWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
