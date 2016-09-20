@@ -33,14 +33,13 @@ namespace GuildInfo.Core
 #if DEBUG
             //guild.Members = guild.Members.Take(5).ToList();
 #endif
-
-            Task.WaitAll(guild.Members.Select(member => Task.Factory.StartNew(() =>
+            Parallel.ForEach(guild.Members, member =>
             {
                 var character = GetCharacterInternal(member);
                 if (character == null) return;
                 characters.Add(new GuildInfoCharacter(character, member));
                 CharacterLoaded?.Invoke(this, new CharacterLoadedEventArgs(guild.Members.Count()));
-            })).ToArray());
+            });
 
             var aggregatedCharacters =
                 from c in characters
@@ -63,7 +62,7 @@ namespace GuildInfo.Core
             catch (WebException ex)
             {
                 HttpStatusCode code = ((HttpWebResponse)ex.Response).StatusCode;
-                if (code == HttpStatusCode.GatewayTimeout)
+                if (code == HttpStatusCode.GatewayTimeout || code == HttpStatusCode.ServiceUnavailable)
                 {
                     return GetGuildInternal(realmName, guildName);
                 }
@@ -77,7 +76,7 @@ namespace GuildInfo.Core
             try
             {
                 return _explorer.GetCharacter(member.Character.Realm, member.Character.Name,
-                    CharacterOptions.GetItems | CharacterOptions.GetReputation | CharacterOptions.GetPets);
+                    CharacterOptions.GetItems | CharacterOptions.GetReputation | CharacterOptions.GetPets | CharacterOptions.GetAchievements);
             }
             catch (WebException ex)
             {
@@ -87,6 +86,7 @@ namespace GuildInfo.Core
                     case HttpStatusCode.NotFound:
                         return null;
                     case HttpStatusCode.GatewayTimeout:
+                    case HttpStatusCode.ServiceUnavailable:
                         return GetCharacterInternal(member);
                     default:
                         throw;

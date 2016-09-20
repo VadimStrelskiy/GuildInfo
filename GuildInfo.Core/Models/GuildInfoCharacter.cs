@@ -45,31 +45,34 @@ namespace GuildInfo.Core.Models
 
         private static int CalculateArtifactLevelTrueCount(Character character)
         {
-            CharacterItem artifact = null;
-            var mainHand = character.Items.MainHand;
-            var offHand = character.Items.OffHand;
-            if (mainHand?.ArtifactTraits != null && mainHand.ArtifactTraits.Any())
-            {
-                artifact = mainHand;
+            var pos = character.Achievements.Criteria.ToList().IndexOf(29395);
+            if (pos == -1) return 0;
+            return (int)(character.Achievements.CriteriaQuantity.ToList()[pos]);
+            //CharacterItem artifact = null;
+            //var mainHand = character.Items.MainHand;
+            //var offHand = character.Items.OffHand;
+            //if (mainHand?.ArtifactTraits != null && mainHand.ArtifactTraits.Any())
+            //{
+            //    artifact = mainHand;
 
-            }
-            else if (offHand?.ArtifactTraits != null && offHand.ArtifactTraits.Any())
-            {
-                artifact = offHand;
-            }
+            //}
+            //else if (offHand?.ArtifactTraits != null && offHand.ArtifactTraits.Any())
+            //{
+            //    artifact = offHand;
+            //}
 
-            if (artifact == null)
-            {
-                return -1;
-            }
+            //if (artifact == null)
+            //{
+            //    return -1;
+            //}
 
-            var artifactLevel = artifact.ArtifactTraits.Sum(at => at.Rank);
-            if (artifact.Relics != null && artifact.Relics.Any())
-            {
-                artifactLevel -= artifact.Relics.Count();
-            }
+            //var artifactLevel = artifact.ArtifactTraits.Sum(at => at.Rank);
+            //if (artifact.Relics != null && artifact.Relics.Any())
+            //{
+            //    artifactLevel -= artifact.Relics.Count();
+            //}
 
-            return artifactLevel;
+            //return artifactLevel;
         }
 
         private static int CalculateLegendaryItemsCount(CharacterEquipment items)
