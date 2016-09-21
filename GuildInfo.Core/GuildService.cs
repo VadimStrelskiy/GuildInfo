@@ -46,8 +46,8 @@ namespace GuildInfo.Core
                 group c by new { c.AchievementPoints, c.Pets}  into result
                 select new AggergatedCharacter
                 {
-                    Main = result.OrderByDescending(r => r.AverageItemLevelEquipped).First(),
-                    Alts = result.OrderByDescending(r => r.AverageItemLevelEquipped).Skip(1).ToList()
+                    Main = result.OrderByDescending(r => r.AverageItemLevel).First(),
+                    Alts = result.OrderByDescending(r => r.AverageItemLevel).Skip(1).ToList()
                 };
 
             return aggregatedCharacters;
