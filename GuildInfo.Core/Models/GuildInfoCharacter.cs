@@ -7,6 +7,8 @@ namespace GuildInfo.Core.Models
 {
     public class GuildInfoCharacter
     {
+        private const int AP_ACHIEVEMNT = 29395;
+
         public GuildInfoCharacter(Character character, GuildMember member)
         {
             if(character == null) throw new ArgumentNullException(nameof(character));
@@ -21,7 +23,13 @@ namespace GuildInfo.Core.Models
             AverageItemLevel = character.Items.AverageItemLevel;
             ArtifactLevel = CalculateArtifactLevelTrueCount(character);
             LegendaryItemsCount = CalculateLegendaryItemsCount(character.Items);
-            HasSuramarAccess = CalculateSuramarAccess(character);
+
+            RingEnchant1 = ItemImprovementHelper.GetRingEnchantQuality(character.Items.Finger1);
+            RingEnchant2 = ItemImprovementHelper.GetRingEnchantQuality(character.Items.Finger2);
+            NeckEnchant = ItemImprovementHelper.GetNeckEnchantQuality(character.Items.Neck);
+            CloakEnchant = ItemImprovementHelper.GetCloakEnchantQuality(character.Items.Back);
+            GemInfo = ItemImprovementHelper.GetGemInfo(character.Items);
+
             var sb = new StringBuilder();
             foreach (var pet in character.Pets.Collected)
             {
@@ -35,17 +43,21 @@ namespace GuildInfo.Core.Models
         public int GuildRank { get; private set; }
         public int AverageItemLevelEquipped { get; private set; }
         public int AverageItemLevel { get; private set; }
-        public bool HasSuramarAccess { get; private set; }
         public int LegendaryItemsCount { get; private set; }
         public int ArtifactLevel { get; private set; }
         public int Class { get; private set; }
+        public EnchantQuality RingEnchant1 { get; private set; }
+        public EnchantQuality RingEnchant2 { get; private set; }
+        public EnchantQuality NeckEnchant { get; private set; }
+        public EnchantQuality CloakEnchant { get; private set; }
+        public GemInfo GemInfo { get; private set; }
 
         internal int AchievementPoints { get; private set; }
         internal string Pets { get; private set; }
 
         private static int CalculateArtifactLevelTrueCount(Character character)
         {
-            var pos = character.Achievements.Criteria.ToList().IndexOf(29395);
+            var pos = character.Achievements.Criteria.ToList().IndexOf(AP_ACHIEVEMNT);
             if (pos == -1) return 0;
             return (int)(character.Achievements.CriteriaQuantity.ToList()[pos]);
             //CharacterItem artifact = null;
@@ -103,13 +115,7 @@ namespace GuildInfo.Core.Models
 
         private static int IsItemLegendary(CharacterItem item)
         {
-            return item?.Quality == 5 && item?.ItemLevel >= 895 ? 1 : 0;
-        }
-
-        private static bool CalculateSuramarAccess(Character character)
-        {
-            var rep = character.Reputation.SingleOrDefault(r => r.Name.Contains("Помр"));
-            return rep != null && (rep.Standing > 5 || rep.Standing == 5 && rep.Value >= 8000);
+            return item?.Quality == 5 && item.ItemLevel >= 895 ? 1 : 0;
         }
     }
 }

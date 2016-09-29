@@ -44,7 +44,10 @@
     <Compile Include="IGuildService.cs" />
     <Compile Include="Models\AggergatedCharacter.cs" />
     <Compile Include="Models\CharacterLoadedEventArgs.cs" />
+    <Compile Include="Models\GemInfo.cs" />
     <Compile Include="Models\GuildInfoCharacter.cs" />
+    <Compile Include="Models\ItemImprovementHelper.cs" />
+    <Compile Include="Models\EnchantQuality.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

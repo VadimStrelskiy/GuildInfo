@@ -33,10 +33,14 @@
                                 Width="100"
                                 DisplayMemberBinding="{Binding Name}"/>
                 
-                <GridViewColumn Header="ilvl"
-                                Width="40"
-                                DisplayMemberBinding="{Binding AverageItemLevel}"/>
+                <GridViewColumn Header="ilvl Eq"
+                                Width="45"
+                                DisplayMemberBinding="{Binding AverageItemLevelEquipped}"/>
                 
+                <GridViewColumn Header="ilvl Max"
+                                Width="45"
+                                DisplayMemberBinding="{Binding AverageItemLevel}"/>
+
                 <GridViewColumn Header="Art lvl"
                                 Width="40"
                                 DisplayMemberBinding="{Binding ArtifactLevel}"/>
@@ -44,10 +48,26 @@
                 <GridViewColumn Header="Legs"
                                 Width="40"
                                 DisplayMemberBinding="{Binding LegendaryItemsCount}"/>
-                
-                <!--<GridViewColumn Header="Suramar"
-                                    DisplayMemberBinding="{Binding HasSuramarAccess}"
-                                    Width="60"/>-->
+
+                <GridViewColumn Header="Ring 1"
+                                Width="45"
+                                DisplayMemberBinding="{Binding RingEnchant1}"/>
+
+                <GridViewColumn Header="Ring 2"
+                                Width="45"
+                                DisplayMemberBinding="{Binding RingEnchant2}"/>
+
+                <GridViewColumn Header="Neck"
+                                Width="45"
+                                DisplayMemberBinding="{Binding NeckEnchant}"/>
+
+                <GridViewColumn Header="Back"
+                                Width="45"
+                                DisplayMemberBinding="{Binding CloakEnchant}"/>
+
+                <GridViewColumn Header="Gems"
+                                Width="45"
+                                DisplayMemberBinding="{Binding GemInfo}"/>
 
                 <GridViewColumn Header="Main"
                                 DisplayMemberBinding="{Binding Main}"

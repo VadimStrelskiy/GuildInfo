@@ -6,7 +6,7 @@
         xmlns:viewModels="clr-namespace:GuildInfo.Wpf.ViewModels"
         xmlns:controls="clr-namespace:GuildInfo.Wpf.Controls"
         mc:Ignorable="d"
-        Title="GuildInfo" Height="600" Width="1140"
+        Title="GuildInfo" Height="700" Width="1300"
         d:DataContext="{d:DesignInstance viewModels:GuildViewModel}">
 
     <Window.CommandBindings>
@@ -139,9 +139,8 @@
                 <RowDefinition Height="3*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="30*" />
-                <ColumnDefinition Width="35*" />
-                <ColumnDefinition Width="35*" />
+                <ColumnDefinition Width="48*" />
+                <ColumnDefinition Width="52*" />
             </Grid.ColumnDefinitions>
 
             <Label Content="Mains" Grid.Column="0" Grid.Row="0"/>
@@ -149,16 +148,17 @@
                                                 Grid.Column="0" Grid.Row="1"/>
 
             <Label Content="{Binding AltsOf}" Grid.Column="0" Grid.Row="2"/>
-            <controls:CharacterControl DataContext="{Binding AltCharacters}"
+            <controls:CharacterControl DataContext="{Binding AltOfMainCharacters}"
                                                 Grid.Column="0" Grid.Row="3"/>
 
-            <Label Content="All Alts" Grid.Column="1" Grid.Row="0"/>
+            <DockPanel  Grid.Column="1" Grid.Row="0" >
+                <Label Content="All Alts" />
+                <CheckBox Content="Only top alts" Margin="5" HorizontalAlignment="Right" IsChecked="{Binding ShowOnlyTopAlts}"/>
+            </DockPanel>
+                
             <controls:CharacterControl DataContext="{Binding AllAltCharacters}"
                                                 Grid.Column="1" Grid.Row="1" Grid.RowSpan="3"/>
 
-            <Label Content="Top Alts" Grid.Column="2" Grid.Row="0"/>
-            <controls:CharacterControl DataContext="{Binding TopAltCharacters}"
-                                                Grid.Column="2" Grid.Row="1" Grid.RowSpan="3"/>
         </Grid>
     </Grid>
 </Window>

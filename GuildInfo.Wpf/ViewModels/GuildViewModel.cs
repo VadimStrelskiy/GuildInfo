@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -17,26 +16,30 @@ namespace GuildInfo.Wpf.ViewModels
         private string _altsOf;
         private double _progress;
         private int _charactersLoaded;
+        private bool _showOnlyTopAlts;
         private bool? _allClassesSelected;
-        private const string _altsOfNoone = "Alts of";
+        private const string ALTS_OF_NOONE = "Alts of";
 
         private IList<int> _calculatedRanksToExclude;
         private IList<AggergatedCharacter> _initialCharacters;
+        private readonly List<CharacterViewModel> _allAltCharacters = new List<CharacterViewModel>();
 
         private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+
+        public const string CLASS_IMAGE_TEMPLATE = "/GuildInfo.Wpf;component/Images/{0}.jpg";
 
         public static RoutedCommand FetchCommand = new RoutedCommand("Fetch", typeof(GuildViewModel));
         public static RoutedCommand FilterCommand = new RoutedCommand("Filter", typeof(GuildViewModel));
 
         public GuildViewModel()
         {
-            AltsOf = _altsOfNoone;
+            AltsOf = ALTS_OF_NOONE;
             MainCharacters.PropertyChanged += MainCharacters_PropertyChanged;
 
             var classes = new List<ClassViewModel>();
             for(int i = 1; i <= 12; i++)
             {
-                classes.Add(new ClassViewModel(i, $"/GuildInfo.Wpf;component/Images/{i}.jpg"));
+                classes.Add(new ClassViewModel(i, string.Format(CLASS_IMAGE_TEMPLATE, i)));
             }
             Classes = new SelectionList<ClassViewModel>(classes);
 
@@ -64,21 +67,20 @@ namespace GuildInfo.Wpf.ViewModels
         {
             if (e.PropertyName != "SelectedCharacter") return;
 
-            AltCharacters.Clear();
+            AltOfMainCharacters.Clear();
             if (MainCharacters.SelectedCharacter == null)
             {
-                AltsOf = _altsOfNoone;
+                AltsOf = ALTS_OF_NOONE;
                 return;
             }
 
-            AltCharacters.Add(MainCharacters.SelectedCharacter.Alts);
+            AltOfMainCharacters.Add(MainCharacters.SelectedCharacter.Alts);
             AltsOf = $"Alts of {MainCharacters.SelectedCharacter.Name}:";
         }
 
         public CharacterListViewModel MainCharacters { get; } = new CharacterListViewModel(false, true);
-        public CharacterListViewModel AltCharacters { get; } = new CharacterListViewModel(false, false);
+        public CharacterListViewModel AltOfMainCharacters { get; } = new CharacterListViewModel(false, false);
         public CharacterListViewModel AllAltCharacters { get; } = new CharacterListViewModel(true, false);
-        public CharacterListViewModel TopAltCharacters { get; } = new CharacterListViewModel(true, false);
 
         public SelectionList<ClassViewModel> Classes { get; }
 
@@ -163,6 +165,18 @@ namespace GuildInfo.Wpf.ViewModels
             }
         }
 
+        public bool ShowOnlyTopAlts
+        {
+            get { return _showOnlyTopAlts; }
+            set
+            {
+                if (value == _showOnlyTopAlts) return;
+                _showOnlyTopAlts = value;
+                UpdateAltsCharacters();
+                OnPropertyChanged(nameof(ShowOnlyTopAlts));
+            }
+        }
+
         public bool? AllClassesSelected
         {
             get { return _allClassesSelected; }
@@ -216,39 +230,25 @@ namespace GuildInfo.Wpf.ViewModels
             ClearAll();
 
             var mainCharacters = new List<CharacterViewModel>();
-            var topAltCharacters = new List<CharacterViewModel>();
 
             foreach (var character in _initialCharacters)
             {
-                var filteredAndSortedAlts =
+                var filteredAndSortedAlts = ApplyInitialOrder(
                     character.Alts
                     .Where(FilterCharacter)
-                    .OrderByDescending(c => c.AverageItemLevel)
-                    .Select(a => new CharacterViewModel(a, character.Main.Name))
-                    .ToList();
+                    .Select(a => new CharacterViewModel(a, character.Main.Name))).ToList();
 
                 if (FilterCharacter(character.Main))
                 {
                     mainCharacters.Add(new CharacterViewModel(character.Main, filteredAndSortedAlts));
                 }
 
-                var topAltCharacter = filteredAndSortedAlts.FirstOrDefault();
-                if (topAltCharacter != null)
-                {
-                    topAltCharacters.Add(topAltCharacter);
-                }
+                _allAltCharacters.AddRange(filteredAndSortedAlts);
             }
+
+            UpdateAltsCharacters();
 
             MainCharacters.Add(ApplyInitialOrder(mainCharacters));
-            TopAltCharacters.Add(ApplyInitialOrder(topAltCharacters));
-
-            var allAltCharacters = new List<CharacterViewModel>();
-            foreach (var c in _initialCharacters)
-            {
-                allAltCharacters.AddRange(c.Alts.Where(FilterCharacter).Select(a => new CharacterViewModel(a, c.Main.Name)));
-            }
-
-            AllAltCharacters.Add(ApplyInitialOrder(allAltCharacters));
         }
 
         public bool CanFilter
@@ -259,15 +259,15 @@ namespace GuildInfo.Wpf.ViewModels
         private void ClearAll()
         {
             MainCharacters.SelectedCharacter = null;
+            _allAltCharacters.Clear();
             MainCharacters.Clear();
-            AltCharacters.Clear();
-            TopAltCharacters.Clear();
+            AltOfMainCharacters.Clear();
             AllAltCharacters.Clear();
         }
 
         private static IEnumerable<CharacterViewModel> ApplyInitialOrder(IEnumerable<CharacterViewModel> characters)
         {
-            return characters.OrderByDescending(c => c.AverageItemLevel);
+            return characters.OrderByDescending(c => c.AverageItemLevelEquipped);
         }
 
         private bool FilterCharacter(GuildInfoCharacter character)
@@ -294,6 +294,24 @@ namespace GuildInfo.Wpf.ViewModels
                 {
                     _calculatedRanksToExclude.Add(rankToExclude);
                 }
+            }
+        }
+
+        private void UpdateAltsCharacters()
+        {
+            AllAltCharacters.Clear();
+            if (!ShowOnlyTopAlts)
+            {
+                AllAltCharacters.Add(ApplyInitialOrder(_allAltCharacters));
+            }
+            else
+            {
+                var grouped = _allAltCharacters.GroupBy(k => k.Main);
+                var topAltCharacters = grouped
+                    .Select(@group => @group.OrderByDescending(i => i.AverageItemLevelEquipped).FirstOrDefault())
+                    .Where(topAltCharacter => topAltCharacter != null).ToList();
+
+                AllAltCharacters.Add(ApplyInitialOrder(topAltCharacters));
             }
         }
 

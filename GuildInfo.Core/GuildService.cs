@@ -31,7 +31,7 @@ namespace GuildInfo.Core
             var characters = new List<GuildInfoCharacter>();
 
 #if DEBUG
-            //guild.Members = guild.Members.Take(5).ToList();
+            //guild.Members = guild.Members.Take(1).ToList();
 #endif
             Parallel.ForEach(guild.Members, member =>
             {
@@ -43,11 +43,11 @@ namespace GuildInfo.Core
 
             var aggregatedCharacters =
                 from c in characters
-                group c by new { c.AchievementPoints, c.Pets}  into result
+                group c by c.Pets into result
                 select new AggergatedCharacter
                 {
-                    Main = result.OrderByDescending(r => r.AverageItemLevel).First(),
-                    Alts = result.OrderByDescending(r => r.AverageItemLevel).Skip(1).ToList()
+                    Main = result.OrderByDescending(r => r.AverageItemLevelEquipped).First(),
+                    Alts = result.OrderByDescending(r => r.AverageItemLevelEquipped).Skip(1).ToList()
                 };
 
             return aggregatedCharacters;

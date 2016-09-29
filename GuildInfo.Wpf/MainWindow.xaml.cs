@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Input;
 using GuildInfo.Wpf.Controls;
@@ -55,7 +56,7 @@ namespace GuildInfo.Wpf
             }
             catch (AggregateException ex)
             {
-                throw ex.InnerExceptions[0];
+                ExceptionDispatchInfo.Capture(ex.InnerExceptions[0]).Throw();
             }
 
             progressBarWindow.Close();
