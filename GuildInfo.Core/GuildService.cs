@@ -80,7 +80,9 @@ namespace GuildInfo.Core
             }
             catch (WebException ex)
             {
-                HttpStatusCode code = ((HttpWebResponse) ex.Response).StatusCode;
+                var response = ex.Response as HttpWebResponse;
+                if (response == null) return GetCharacterInternal(member);
+                HttpStatusCode code = response.StatusCode;
                 switch (code)
                 {
                     case HttpStatusCode.NotFound:
