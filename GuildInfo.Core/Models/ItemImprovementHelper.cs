@@ -14,7 +14,7 @@ namespace GuildInfo.Core.Models
 
         private static readonly IEnumerable<int> CheapRingEnchants = new List<int>
         {
-            5423, 5424, 5425, 5436
+            5423, 5424, 5425, 5426
         };
 
         private static readonly IEnumerable<int> NeckEnchants = new List<int>
