@@ -40,12 +40,16 @@ namespace GuildInfo.Wpf
             }
             catch (WebException ex)
             {
-                HttpStatusCode code = ((HttpWebResponse) ex.Response).StatusCode;
-                if (code == HttpStatusCode.NotFound)
+                var response = ex.Response as HttpWebResponse;
+                if (response == null)
+                {
+                    MessageBox.Show(this, "Blizzard server unavailable!", "OMG Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     MessageBox.Show(this, "Not Found!", "OMG Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                else if (code == HttpStatusCode.Forbidden)
+                else if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
                     MessageBox.Show(this, "Forbidden!", "OMG Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
